@@ -1,0 +1,14 @@
+{
+  "name": "multipart-upload",
+  "version": "0.0.1",
+  "description": "Split file into multiple chunks and upload them in parallel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Utkarsh <x22229698@student.ncirl.ie>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.7"
+  }
+}
