@@ -6,11 +6,55 @@
  */
 const fileIntoChunks = (file, chunk_size) => {
   const chunks = [];
+  let position = 0;
   for (let start = 0; start < file.size; start = start + chunk_size) {
     const end = Math.min(start + chunk_size, file.size);
-    chunks.push(file.slice(start, end));
+    chunks.push({
+      part: file.slice(start, end),
+      start: start,
+      end: end,
+      position: position,
+    });
+    position++;
   }
   return chunks;
 };
 
-export { fileIntoChunks };
+/**
+ * Upload chunk
+ * @param {File} file which need to be divided
+ * @param {Blob} chunk file part
+ * @param {String} URL endpoint for upload
+ * @returns {void} void function
+ */
+const uploadChunk = async (file, chunk, URL) => {
+  const formData = new FormData();
+  const reader = new FileReader();
+  formData.append(
+    "file",
+    await new Promise((resolve, reject) => {
+      reader.onload = resolve;
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(chunk.part);
+    })
+  );
+  formData.append("fileName", file.name);
+  formData.append("fileSize", file.size);
+  formData.append("start", chunk.start);
+  formData.append("end", chunk.end);
+  formData.append("position", chunk.position);
+
+  try {
+    const response = await fetch(URL, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export { fileIntoChunks, uploadChunk };

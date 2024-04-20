@@ -1,3 +1,5 @@
+import { uploadChunk } from "./utility/helper";
+
 /**
  * Upload file chunks in parllel
  * @param {File} file which need to be divided
@@ -12,16 +14,16 @@ const uploadFile = async (
   maxConcurrentUploadRequest,
   URL
 ) => {
-  const chunks = fileIntoChunks(file, chunk_size);
+  const chunks = fileIntoChunks(file, (chunk_size = 256 * 1024));
   let que = [];
 
-  for (
-    let i = 0;
-    i < Math.min(chunks.length, maxConcurrentUploadRequest);
-    i++
-  ) {
+  for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
-    que.push(chunk);
+    que.push(uploadChunk(file, chunk, URL));
+    if (que.length === maxConcurrentUploadRequest) {
+      await Promise.all(que);
+      que = [];
+    }
   }
 };
 
