@@ -29,15 +29,7 @@ const fileIntoChunks = (file, chunk_size) => {
  */
 const uploadChunk = async (file, chunk, URL) => {
   const formData = new FormData();
-  const reader = new FileReader();
-  formData.append(
-    "file",
-    await new Promise((resolve, reject) => {
-      reader.onload = resolve;
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(chunk.part);
-    })
-  );
+  formData.append("chunk", chunk.part);
   formData.append("fileName", file.name);
   formData.append("fileSize", file.size);
   formData.append("start", chunk.start);
